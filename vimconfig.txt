@@ -1,0 +1,56 @@
+#!/bin/bash
+#####################################################
+#	Author		: billy
+#	Email		: libinjava@qq.com
+#	QQ		: 337305414
+#	Last modified	: 2015-06-27 08:15
+#	Filename	: vimconfig.txt
+#	Description	: 为vim添加快捷键，可以快速添加sh文件的文件头信息
+#
+####################################################
+
+" 添加vim 快捷键F4 为添加或更新文件头信息 
+map <F4> ms:call TitleDet()<cr>'s
+
+function AddTitle()
+        call append(0,"#!/bin/bash")
+        call append(1,"#####################################################")
+        call append(2,"#	Author		: billy")
+        call append(3,"#	Email		: libinjava@qq.com")
+        call append(4,"#	QQ		: 337305414")
+        call append(5,"#	Last modified	: ".strftime("%Y-%m-%d %H:%M"))
+        call append(6,"#	Filename	: ".expand("%:t"))
+        call append(7,"#	Description	: ")
+        call append(8,"#")
+        call append(9,"####################################################")
+        echohl WarningMsg | echo "Successful in adding the copyright." | echohl None
+endfunction
+
+"更新最近修改时间和文件名
+function UpdateTitle()
+        normal m'
+        execute '/#\t*Last modified\t*:/s@:.*$@\=strftime(": %Y-%m-%d %H:%M")@'
+        normal ''
+        normal mk
+        execute '/#\t*Filename\t*:/s@:.*$@\=": ".expand("%:t")@'
+        execute "noh"
+        normal 'k
+        echohl WarningMsg | echo "Successful in updating the copy right." | echohl None
+endfunction
+
+"判断前10行代码里面，是否有Last modified这个单词，
+"如果没有的话，代表没有添加过作者信息，需要新添加；
+"如果有的话，那么只需要更新即可
+function TitleDet()
+        let n=1
+        "默认为添加
+        while n < 10
+                let line = getline(n)
+                if line =~ '^\#\t*\S*Last\smodified\t*:\S*.*$'
+			call UpdateTitle()
+                        return
+                endif
+                let n = n + 1
+        endwhile
+        call AddTitle()
+endfunction
