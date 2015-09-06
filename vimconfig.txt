@@ -6,6 +6,7 @@
 #	Last modified	: 2015-06-27 08:15
 #	Filename	: vimconfig.txt
 #	Description	: 为vim添加快捷键，可以快速添加sh文件的文件头信息
+#	Usage		: 添加到/etc/vimrc文件中
 #
 ####################################################
 
