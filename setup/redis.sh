@@ -1,0 +1,72 @@
+#!/bin/bash
+
+echo -e "\e[1;32m"
+echo -e "Redis version 2.8.19"
+echo -e "开始"
+sleep 3
+
+mkdir /opt/down
+DOWNPATH=/opt/down
+cd $DOWNPATH
+
+wget http://download.redis.io/releases/redis-2.8.19.tar.gz
+
+echo -e "下载结束 Redis done"
+sleep 2
+
+tar zxf redis-2.8.19.tar.gz -C /usr/local
+
+echo -e "解压结束 tar done"
+sleep 2
+
+cd /usr/local
+cd redis-2.8.19
+
+make && make install
+
+echo -e "安装结束 make done"
+sleep 2
+
+mkdir -p /usr/local/redis/conf
+mkdir -p /usr/local/redis/log
+mkdir -p /usr/local/redis/data
+cp redis.conf /usr/local/redis/conf
+echo -e "复制配置文件结束 copy conf to /usr/local/redis/conf done"
+
+cd $DOWNPATH
+cp redis-server /etc/init.d/
+chmod +x /etc/init.d/redis-server
+echo -e "复制安装服务结束 copy service script to /etc/init.d/redis-server"
+sleep 2
+
+echo -e "配置内核分配内存策略 = 1"
+cp /etc/sysctl.conf /etc/sysctl.redis.conf.bak
+echo -e "\n\n#redis\nvm.overcommit_memory = 1" >> /etc/sysctl.conf
+sysctl vm.overcommit_memory=1
+
+echo 1 > /proc/sys/vm/overcommit_memory
+
+echo -e "设置redis运行方式为守护模式"
+sed -i 's/daemonize no/daemonize yes\n#守护进程模式/g' /usr/local/redis/conf/redis.conf
+
+echo -e "设置redis运行pid"
+sed -i 's/pidfile \/var\/run\/redis.pid/pidfile \/var\/run\/redis.pid\n#守护进程模式 运行pid/g' /usr/local/redis/conf/redis.conf
+
+echo -e "设置redis端口"
+sed -i 's/port 6379/port 6379\n#端口/g' /usr/local/redis/conf/redis.conf
+
+echo -e "设置redis最大内存数为2G,如需更改请手动修改配置"
+sed -i 's/# maxmemory <bytes>/# maxmemory <bytes>\n#maxmemory 2gb\n#分配2GB内存/g' /usr/local/redis/conf/redis.conf
+
+echo -e "设置redis最大连接数为20000,如需更改请手动修改配置"
+sed -i 's/# maxclients 10000/maxclients 20000\n#最大连接数2w/g' /usr/local/redis/conf/redis.conf
+
+echo -e "设置redis存储文件名"
+sed -i 's/dbfilename dump.rdb/dbfilename dump.rdb\n#文件名/g' /usr/local/redis/conf/redis.conf
+
+echo -e "设置redis文件存储位置"
+sed -i 's/dir .\//#dir .\/\ndir \/usr\/local\/redis\/data\/\n#文件存储位置/g' /usr/local/redis/conf/redis.conf
+
+
+echo -e "优化结束 optimalize finish(youhua)"
+echo -e "\e[0m"
