@@ -54,6 +54,8 @@ mkdir -p /usr/local/redis/conf
 mkdir -p /usr/local/redis/log
 mkdir -p /usr/local/redis/data
 cp redis.conf /usr/local/redis/conf
+cp sentinel.conf /usr/local/redis/conf
+
 echo_green "复制配置文件结束 copy conf to /usr/local/redis/conf done"
 
 # cd $DOWNPATH
